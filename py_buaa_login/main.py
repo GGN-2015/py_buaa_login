@@ -9,6 +9,14 @@ from selenium.webdriver.chrome.options import Options
 import time
 import traceback
 from typing import Optional
+import os
+import logging
+
+# 关闭 webdriver-manager 日志与 Selenium 警告
+os.environ["WDM_LOG_LEVEL"] = "0"
+os.environ["WDM_SSL_VERIFY"] = "0"
+logging.getLogger("selenium").setLevel(logging.ERROR)
+logging.getLogger("urllib3").setLevel(logging.ERROR)
 
 try:
     from .time_elapsed import timed_task
