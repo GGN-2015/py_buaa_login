@@ -3,13 +3,14 @@
 一个十分笨重的（基于 selenium）北航校园网自动化登录脚本。
 
 > [!IMPORTANT]
-> 校园网登录前，需要关闭系统代理以免 https://gw.buaa.edu.cn 无法正常访问
+> 校园网登录前，需要关闭系统代理以免 [https://gw.buaa.edu.cn](https://gw.buaa.edu.cn) 无法正常访问
 
 ## 安装方式
 
 > [!IMPORTANT]
-> 请使用 pypi 官方软件源，此包 **通常无法** 从 pypi 非官方镜像源下载。
-> 请使用 `python>=3.10`
+> - 请使用 pypi 官方软件源，此包 **通常无法** 从 pypi 非官方镜像源下载。
+>
+> - 请使用 `python>=3.10`
 
 ```bash
 pip install py_buaa_login
@@ -18,6 +19,9 @@ pip install py_buaa_login
 ## 使用方式
 
 ### 登录校园网
+
+> [!NOTE]
+> 登录校园网以及登出校园网时，可能需要等待大概 10 秒，属正常现象。
 
 ```bash
 # 从命令行参数获得用户名和口令
@@ -29,13 +33,16 @@ python -m py_buaa_login login "<username>" "<password>"
 python -m py_buaa_login login --stdin
 ```
 
-### 校园网退出登录
+### 登出校园网
 
 ```bash
 python -m py_buaa_login logout
 ```
 
 ### 查询网络是否可用
+
+> [!NOTE]
+> 查询网络是否可用时，可能需要等待大概 10 秒，属正常现象。
 
 ```bash
 python -m py_buaa_login status
