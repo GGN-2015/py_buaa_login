@@ -10,6 +10,11 @@ import time
 import traceback
 from typing import Optional
 
+try:
+    from .time_elapsed import timed_task
+except:
+    from time_elapsed import timed_task
+
 info_print = print
 
 # 向指定的文本框中填入内容
@@ -43,6 +48,7 @@ def has_element_with_id_and_class(driver, target_id, target_class):
 # 使用指定 url 启动一个 driver
 def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
     options = Options()
+    options.add_argument("--disable-background-networking")
     if headless:
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
@@ -52,8 +58,8 @@ def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
     time.sleep(sleep_time)
     return driver
 
-# 检测网络是否可用
-def login_check(timeout:float=2) -> bool:
+@timed_task("login check")
+def login_check_core(timeout:float) -> bool:
     try:
         response = requests.get(
             "https://www.baidu.com", allow_redirects=False, timeout=timeout)
@@ -61,15 +67,32 @@ def login_check(timeout:float=2) -> bool:
     except:
         return False
 
+# 检测网络是否可用
+def login_check(timeout:float=2) -> bool:
+    return login_check_core(timeout)
+
 # 等待页面加载完成
 def wait_page_loaded(driver, timeout=10):
     WebDriverWait(driver, timeout).until(
         lambda d: d.execute_script("return document.readyState") == "complete"
     )
 
+# 登录核心函数
+@timed_task("logout")
+def login_core_funcion(driver, username:str, password:str):
+    # 点击登录按钮, 尝试登录
+    try:
+        fill_input_by_id_class(driver, "username", "input-box", username)
+        fill_input_by_id_class(driver, "password", "input-box", password)
+        click_button_by_id_class(driver, "login-account", "btn-login")
+        time.sleep(1.0)
+        wait_page_loaded(driver)
+    except:
+        traceback.print_exc()
+
 # 如果没有网络可用
 # 则试图登录校园网客户端
-def login(stuid:str, password:str, headless:bool=True) -> bool:
+def login(username:str, password:str, headless:bool=True) -> bool:
     info_print("checking login status ...")
     driver = None
 
@@ -78,17 +101,8 @@ def login(stuid:str, password:str, headless:bool=True) -> bool:
 
         driver = create_driver_with_url("https://gw.buaa.edu.cn", headless)
 
-        # 找到登录按钮
-        # 则尝试登录
         info_print("try to login ...")
-        try:
-            fill_input_by_id_class(driver, "username", "input-box", stuid)
-            fill_input_by_id_class(driver, "password", "input-box", password)
-            click_button_by_id_class(driver, "login-account", "btn-login")
-            time.sleep(1.0)
-            wait_page_loaded(driver)
-        except:
-            traceback.print_exc()
+        login_core_funcion(driver, username, password)
 
     # 检查网络登录是否成功
     ans = login_check()
@@ -102,6 +116,18 @@ def login(stuid:str, password:str, headless:bool=True) -> bool:
         driver.quit()
     return ans
 
+# 退出登陆的核心函数
+@timed_task("logout")
+def logout_core_function(driver):
+    try:
+        click_button_by_id_class(driver, "logout", "btn-logout")
+        time.sleep(0.5)
+        click_button_by_id_class(driver, None, "btn-confirm")
+        time.sleep(0.5)
+        wait_page_loaded(driver)
+    except:
+        traceback.print_exc()
+
 # 试图退出校园网
 def logout(headless:bool=True) -> bool:
     info_print("checking login status ...")
@@ -109,18 +135,11 @@ def logout(headless:bool=True) -> bool:
 
     if login_check():
         info_print("logged in.")
-
-        info_print("try to logout ...")
         driver = create_driver_with_url("https://gw.buaa.edu.cn", headless)
-        try:
-            click_button_by_id_class(driver, "logout", "btn-logout")
-            time.sleep(0.5)
-            click_button_by_id_class(driver, None, "btn-confirm")
-            time.sleep(0.5)
-            wait_page_loaded(driver)
-        except:
-            traceback.print_exc()
-            
+        
+        info_print("try to logout ...")
+        logout_core_function(driver)
+        
     ans = not login_check()
     if ans:
         info_print("logout success.")
