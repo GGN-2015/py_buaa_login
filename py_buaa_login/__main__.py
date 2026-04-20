@@ -12,7 +12,18 @@ def print_help_msg():
     print("    # logout")
     print("    python -m py_buaa_login logout")
 
+def has_and_remove(list_val:list[str], s_val:str) -> tuple[bool, list[str]]:
+    return (
+        s_val in list_val,
+        [
+            item
+            for item in list_val
+            if item != s_val
+        ]
+    )
+
 def main(argv_list:list[str]):
+    with_head, argv_list = has_and_remove(argv_list, "--head")
 
     # help
     if len(argv_list) == 0 or ("--help" in argv_list):
@@ -45,14 +56,14 @@ def main(argv_list:list[str]):
         else:
             username = argv_list[1]
             password = argv_list[2]
-        login(username, password)
+        login(username, password, not with_head)
 
     # logout
     elif argv_list[0] == "logout":
         if len(argv_list) != 1:
             print("Usage: \n    python -m py_buaa_login logout")
             return
-        logout()
+        logout(not with_head)
 
     else:
         print_help_msg()

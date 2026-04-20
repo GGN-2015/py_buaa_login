@@ -1,4 +1,6 @@
 import requests
+from requests.exceptions import Timeout, RequestException
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
@@ -11,6 +13,7 @@ import traceback
 from typing import Optional
 import os
 import logging
+from multiprocessing import Process, Queue
 
 # 关闭 webdriver-manager 日志与 Selenium 警告
 os.environ["WDM_LOG_LEVEL"] = "0"
@@ -66,18 +69,29 @@ def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
     time.sleep(sleep_time)
     return driver
 
-@timed_task("login check")
-def login_check_core(timeout:float) -> bool:
+def login_check_core(timeout: float) -> bool:
     try:
         response = requests.get(
-            "https://www.baidu.com", allow_redirects=False, timeout=timeout)
+            "https://www.baidu.com",
+            allow_redirects=False,
+            timeout=timeout,
+        )
         return response.status_code == 200
-    except:
+
+    except Timeout:
         return False
 
+    except RequestException:
+        return False
+
+def _task(timeout:float, result_q:Queue):
+    res = login_check_core(timeout)
+    result_q.put(res)
+
 # 检测网络是否可用
-def login_check(timeout:float=2) -> bool:
-    return login_check_core(timeout)
+@timed_task("login check")
+def login_check(timeout: float = 2) -> bool:
+    return login_check_core(timeout=timeout)
 
 # 等待页面加载完成
 def wait_page_loaded(driver, timeout=10):
