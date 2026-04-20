@@ -69,6 +69,7 @@ def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
     time.sleep(sleep_time)
     return driver
 
+@timed_task("login check")
 def login_check_core(timeout: float) -> bool:
     try:
         response = requests.get(
@@ -89,7 +90,6 @@ def _task(timeout:float, result_q:Queue):
     result_q.put(res)
 
 # 检测网络是否可用
-@timed_task("login check")
 def login_check(timeout: float = 2) -> bool:
     return login_check_core(timeout=timeout)
 
@@ -100,7 +100,7 @@ def wait_page_loaded(driver, timeout=10):
     )
 
 # 登录核心函数
-@timed_task("logout")
+@timed_task("login")
 def login_core_funcion(driver, username:str, password:str):
     # 点击登录按钮, 尝试登录
     try:
