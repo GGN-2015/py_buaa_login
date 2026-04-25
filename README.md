@@ -74,6 +74,11 @@ python -m py_buaa_login
 ## 编程接口
 
 ```python
+# 在确定有网络的前提下检查 selenium ChromeDrive 是否可用
+# 返回 True 表示 selenium ChromeDrive 可用
+from py_buaa_login import test
+print(test(True))
+
 # 检查登录情况
 # 返回 True 表示网络可用
 from py_buaa_login import login_check
