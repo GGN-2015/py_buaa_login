@@ -1,6 +1,9 @@
 import requests
 from requests.exceptions import Timeout, RequestException
 
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import NoSuchElementException
@@ -13,7 +16,6 @@ import traceback
 from typing import Optional
 import os
 import logging
-from multiprocessing import Process, Queue
 
 # 关闭 webdriver-manager 日志与 Selenium 警告
 os.environ["WDM_LOG_LEVEL"] = "0"
@@ -60,12 +62,12 @@ def has_element_with_id_and_class(driver, target_id, target_class):
 def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
     options = Options()
     options.add_argument("--disable-background-networking")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-gpu")
     if headless:
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(options=options)
-    driver.get(url)
-    wait_page_loaded(driver)
     time.sleep(sleep_time)
     return driver
 
@@ -84,10 +86,6 @@ def login_check_core(timeout: float) -> bool:
 
     except RequestException:
         return False
-
-def _task(timeout:float, result_q:Queue):
-    res = login_check_core(timeout)
-    result_q.put(res)
 
 # 检测网络是否可用
 def login_check(timeout: float = 2) -> bool:
