@@ -68,6 +68,7 @@ def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
     driver = webdriver.Chrome(options=options)
+    driver.get(url)
     time.sleep(sleep_time)
     return driver
 
