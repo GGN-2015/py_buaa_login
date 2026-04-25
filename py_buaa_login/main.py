@@ -111,6 +111,16 @@ def login_core_funcion(driver, username:str, password:str):
     except:
         traceback.print_exc()
 
+# 测试谷歌是否可以访问
+def test(headless:bool, url:str="https://www.google.com") -> bool:
+    try:
+        driver = create_driver_with_url(url, headless)
+        time.sleep(1.0)
+        driver.quit()
+        return True
+    except:
+        return False
+
 # 如果没有网络可用
 # 则试图登录校园网客户端
 def login(username:str, password:str, headless:bool=True) -> bool:
