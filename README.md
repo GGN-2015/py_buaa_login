@@ -17,7 +17,7 @@ pip install py_buaa_login
 
 ### 初次测试
 
-> ![IMPORTANT]
+> [!IMPORTANT]
 > 初次使用时，请务必在有外网的环境下，执行一次 `test` 子命令，用于测试 ChromeDriver 是否可用。
 
 在使用此脚本登录校园网前，脚本初次运行可能会从外网下载 ChromeDriver。因此建议在有外网的环境下进行初次运行测试，测试命令为：
