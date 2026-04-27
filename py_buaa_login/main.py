@@ -10,6 +10,7 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 import time
 import traceback
@@ -25,8 +26,10 @@ logging.getLogger("urllib3").setLevel(logging.ERROR)
 
 try:
     from .time_elapsed import timed_task
+    from .selenium_cache import find_cached_chromedrive
 except:
     from time_elapsed import timed_task
+    from selenium_cache import find_cached_chromedrive
 
 info_print = print
 
@@ -60,14 +63,24 @@ def has_element_with_id_and_class(driver, target_id, target_class):
 
 # 使用指定 url 启动一个 driver
 def create_driver_with_url(url:str, headless:bool, sleep_time:float=2.0):
+
     options = Options()
     options.add_argument("--disable-background-networking")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-gpu")
+
     if headless:
         options.add_argument("--headless=new")
         options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(options=options)
+    
+    cached_chromedrive = find_cached_chromedrive()
+    if cached_chromedrive is None:
+        driver = webdriver.Chrome(options=options)
+    else:
+        driver = webdriver.Chrome(
+            options=options, 
+            service=Service(
+                executable_path=cached_chromedrive))
     driver.get(url)
     time.sleep(sleep_time)
     return driver

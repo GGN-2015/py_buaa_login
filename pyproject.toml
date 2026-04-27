@@ -1,6 +1,6 @@
 [project]
 name = "py-buaa-login"
-version = "0.1.8"
+version = "0.1.9"
 description = "A rather clunky BUAA campus network automation login script (based on Selenium)."
 authors = [
     {name = "GGN_2015",email = "neko@jlulug.org"}
