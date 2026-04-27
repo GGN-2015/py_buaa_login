@@ -21,7 +21,8 @@ def listdir(filepath:str) -> list[str]:
 
 def find_cached_chromedrive() -> Optional[str]:
     for filepath in listdir(CACHE_ROOT):
-        if filepath.endswith("chromedriver.exe"):
+        filename = os.path.basename(filepath)
+        if filename in ["chromedriver.exe", "chromedriver"]:
             return filepath
     return None
 
