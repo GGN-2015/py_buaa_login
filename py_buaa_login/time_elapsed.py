@@ -18,13 +18,8 @@ def timed_task(label=None) -> Callable:
             else:
                 chrono = LiveChrono(display_format=f"Elapsed: %H:%M:%S")
             
-            # 启动计时 + 自定义显示格式
-            if label:
-                # 带标签格式
-                chrono.start()
-            else:
-                # 无标签格式
-                chrono.start()
+            # 启动计时
+            chrono.start()
 
             try:
                 # 执行目标函数
